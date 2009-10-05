@@ -41,7 +41,6 @@
 ;; gives unexpected jumps in loccur mode
 ;;
 ;;; TODO:
-;; 1. Highlight matched strings
 ;; 
 ;;; Change Log:
 ;;
