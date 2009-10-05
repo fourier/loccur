@@ -4,7 +4,7 @@
 ;;
 ;; Author: Alexey Veretennikov <alexey dot veretennikov at gmail dot com>
 ;; Created: 2009-09-08
-;; Version: 1.0
+;; Version: 1.1.0
 ;; Keywords: matching
 ;; URL: http://loccur.sourceforge.net/
 ;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x
@@ -27,9 +27,14 @@
 ;;; Commentary:
 ;;
 ;; Add the following to your .emacs file:
+;; 
 ;; (require 'loccur)
-;; (define-key global-map "\C-o" 'loccur-current)
-;; (define-key global-map "\C-\M-o" 'loccur)
+;; ;; defines shortcut for loccur of the current word
+;; (define-key global-map [(control o)] 'loccur-current)
+;; ;; defines shortcut for the interactive loccur command
+;; (define-key global-map [(control meta o)] 'loccur)
+;; ;; defines shortcut for the loccur of the previously found word
+;; (define-key global-map [(control shift o)] 'loccur-previous-match)
 ;;
 ;;; Issues:
 ;; Using with smooth-scrolling.el sometimes
@@ -39,6 +44,12 @@
 ;; 1. Highlight matched strings
 ;; 
 ;;; Change Log:
+;;
+;; 2009-10-05 (1.1.0)
+;;    + Added highlighting of the matched strings
+;;    + Now inserts selected region to the prompt
+;;    + Added defun for applying last found regexp(loccur-previous-match)
+;;    + Added intangible property together with invisibility
 ;;
 ;; 2009-09-08 (1.0.0)
 ;;    Initial Release.
@@ -60,8 +71,13 @@
 
 
 (defvar loccur-history nil
-  "History of previously searched expressions.")
+  "History of previously searched expressions for the prompt")
 (make-variable-buffer-local 'loccur-history)
+
+(defvar loccur-last-match nil
+  "Last match found")
+(make-variable-buffer-local 'loccur-last-match)
+
 
 
 (defvar loccur-overlay-list nil
@@ -88,6 +104,12 @@
   (loccur (current-word)))
 
 
+(defun loccur-previous-match ()
+  "Call `loccur' for the previously found word."
+  (interactive)
+  (loccur loccur-last-match))
+
+
 (defun loccur (regex)
   "Perform a simple grep in current buffer for the regular
 expression REGEX
@@ -98,30 +120,69 @@ unhides lines again"
   (interactive 
    (if loccur-mode
 	   (list nil)
-	 (list (read-string "Regexp: " (current-word) 'loccur-history))))
+     (loccur-prompt)))
   (loccur-mode regex))
 
 
+(defun loccur-prompt ()
+  "Prompts for a regexp to search
+
+Default value for prompt is a current word or active region(selection),
+if its size is 1 line"
+  (let ((prompt
+         (if (and transient-mark-mode
+                  mark-active)
+             (let ((pos1 (region-beginning))
+                   (pos2 (region-end)))
+               ;; Check if the start and the of an active region is on
+               ;; the same line
+               (if (= (line-number-at-pos pos1)
+                      (line-number-at-pos pos2))
+                   (buffer-substring-no-properties pos1 pos2)))
+           (current-word))))
+    (list (read-string "Regexp: " prompt 'loccur-history ))))
+
+
 (defun loccur-1 (regex)
-  (let* ((buffer-lines (loccur-find-match-lines regex))
-		 (ovl-bounds (loccur-create-overlay-bounds-btw-lines buffer-lines)))
+  (let* ((buffer-matches (loccur-find-matches regex))
+		 (ovl-bounds (loccur-create-overlay-bounds-btw-lines buffer-matches)))
 	(setq loccur-overlay-list 
-		  (loccur-create-overlays ovl-bounds))
+		  (loccur-create-invisible-overlays ovl-bounds))
+    (setq loccur-overlay-list
+          (append loccur-overlay-list
+                  (loccur-create-highlighted-overlays buffer-matches)))
+    (setq loccur-last-match regex)
 	(recenter)))
 
+(defun loccur-create-highlighted-overlays(buffer-matches)
+  (let ((overlays 
+		 (map 'list #'(lambda (match)
+						(make-overlay
+						 (nth 1 match)
+						 (nth 2 match)
+						 (current-buffer) t nil))
+			  buffer-matches)))
+	(mapcar (lambda (ovl) 
+              (overlay-put ovl loccur-overlay-property-name t)
+             (overlay-put ovl 'face 'isearch))
+            overlays)))
 
-(defun loccur-create-overlays (ovl-bounds)
+
+(defun loccur-create-invisible-overlays (ovl-bounds)
   (let ((overlays 
 		 (map 'list #'(lambda (bnd)
 						(make-overlay
-						 (first bnd)
-						 (second bnd)
+						 (car bnd)
+						 (cadr bnd)
 						 (current-buffer) t nil))
 			  ovl-bounds)))
-	(dolist (ovl overlays)
-	  (overlay-put ovl loccur-overlay-property-name t)
-	  (overlay-put ovl 'invisible t))
-	overlays))
+	(mapcar (lambda (ovl) 
+              (overlay-put ovl loccur-overlay-property-name t)
+              (overlay-put ovl 'invisible t)
+              ;; force intangible property if invisible property
+              ;; does not automatically set it
+              (overlay-put ovl 'intangible t))
+            overlays)))
 
 
 (defun loccur-remove-overlays ()
@@ -129,22 +190,26 @@ unhides lines again"
   (setq loccur-overlay-list nil))
 
 
-(defun loccur-create-overlay-bounds-btw-lines (buffer-lines)
+(defun loccur-create-overlay-bounds-btw-lines (buffer-matches)
   (let ((prev-end (point-min))
 		(overlays (list)))
-	(when buffer-lines
-	  (dolist (line buffer-lines)
-		(let ((beginning (first line)))
-		  (unless ( = (- beginning prev-end) 1)
-			(let ((ovl-start (if (= prev-end 1) 1 prev-end))
+	(when buffer-matches
+	  (mapcar (lambda (line)
+                (let ((beginning (car line)))
+                  (unless ( = (- beginning prev-end) 1)
+                    (let ((ovl-start (if (= prev-end 1) 1 prev-end))
 				  (ovl-end  (1- beginning)))
-			  (push (list ovl-start ovl-end) overlays)))
-		  (setq prev-end (second line))))
+                      (push (list ovl-start ovl-end) overlays)))
+                  (setq prev-end (nth 3 line))))
+              buffer-matches)
 	  (push (list (1+ prev-end) (point-max)) overlays)
 	  (setq overlays (nreverse overlays)))))
 
 
-(defun loccur-find-match-lines (regex)
+(defun loccur-find-matches (regex)
+  "Returns a list of 4-number tuples, specifying begnning of the line,
+1st match begin of a line, 1st match end of a line, end of a line
+containing match"
   (save-excursion
 	;; Go to the beginnig of buffer
 	(goto-char (point-min))
@@ -159,16 +224,19 @@ unhides lines again"
 		;; if something found
 		(when (setq endpoint (re-search-forward regex nil t))
 		  (save-excursion
-			;; Get the start and the and of the matching line
-			;; and store it to the overlays array
-			(goto-char (match-beginning 0))
-			(setq endpoint (line-end-position))
-			(push (list (line-beginning-position) endpoint) lines))
+            (let ((found-begin (match-beginning 0))
+                  (found-end (match-end 0)))
+              ;; Get the start and the and of the matching line
+              ;; and store it to the overlays array
+              (goto-char found-begin)
+              (setq endpoint (line-end-position))
+              (push (list (line-beginning-position) found-begin found-end endpoint) lines)))
 		  ;; maybe add some code to highlight matches like in occur-mode?
 		  ;; goto the end of line for any case
 		  (goto-char endpoint))
 		(forward-line 1))
 	  (setq lines (nreverse lines)))))
+
 
 (provide 'loccur)
 ;;; loccur.el ends here
