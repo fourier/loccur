@@ -4,7 +4,7 @@
 ;;
 ;; Author: Alexey Veretennikov <alexey dot veretennikov at gmail dot com>
 ;; Created: 2009-09-08
-;; Version: 1.1.0
+;; Version: 1.1.1
 ;; Keywords: matching
 ;; URL: http://loccur.sourceforge.net/
 ;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x
@@ -43,6 +43,11 @@
 ;;; TODO:
 ;; 
 ;;; Change Log:
+;;
+;; 2010-03-07 (1.1.1)
+;;    + Default value is taken from prompt instead of an edit area
+;;    (thanks to Nathaniel Flath)
+;;
 ;;
 ;; 2009-10-05 (1.1.0)
 ;;    + Added highlighting of the matched strings
@@ -118,13 +123,15 @@ containing the regular expression REGEX. A second call of the function
 unhides lines again"
   (interactive 
    (if loccur-mode
-	   (list nil)
-     (loccur-prompt)))
+       (list nil)
+       (list (read-string (concat "Regexp<" (loccur-prompt)
+                                  ">: ") "" 'loccur-history ))))
+  (if (string-equal "" regex) (setq regex (loccur-prompt)))
   (loccur-mode regex))
 
 
 (defun loccur-prompt ()
-  "Prompts for a regexp to search
+  "Returns the default value of the prompt.
 
 Default value for prompt is a current word or active region(selection),
 if its size is 1 line"
@@ -139,7 +146,7 @@ if its size is 1 line"
                       (line-number-at-pos pos2))
                    (buffer-substring-no-properties pos1 pos2)))
            (current-word))))
-    (list (read-string "Regexp: " prompt 'loccur-history ))))
+    prompt))
 
 
 (defun loccur-1 (regex)
