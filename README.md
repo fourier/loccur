@@ -1,6 +1,6 @@
 There is a minor mode for Emacs acting like occur but w/o creating a new window. It just hides all the text excepting lines containing matches. To use it, add the following to your .emacs file:
 
-```elisp
+```scheme
 (require 'loccur)
 ;; defines shortcut for loccur of the current word
 (define-key global-map [(control o)] 'loccur-current)
