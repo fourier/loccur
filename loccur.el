@@ -6,8 +6,8 @@
 ;; Created: 2009-09-08
 ;; Version: 1.1.2
 ;; Keywords: matching
-;; URL: http://loccur.sourceforge.net/
-;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x, 24.x
+;; URL: https://github.com/fourier/loccur
+;; Compatibility: GNU Emacs 23.x, GNU Emacs 24.x
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
