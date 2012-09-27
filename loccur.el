@@ -4,7 +4,7 @@
 ;;
 ;; Author: Alexey Veretennikov <alexey dot veretennikov at gmail dot com>
 ;; Created: 2009-09-08
-;; Version: 1.1.2
+;; Version: 1.1.3
 ;; Keywords: matching
 ;; URL: https://github.com/fourier/loccur
 ;; Compatibility: GNU Emacs 23.x, GNU Emacs 24.x
@@ -43,6 +43,10 @@
 ;;; TODO:
 ;; 
 ;;; Change Log:
+;;
+;; 2012-09-27 (1.1.3)
+;;    + Recenter on exit from loccur-mode
+;;
 ;;
 ;; 2012-09-25 (1.1.2)
 ;;    + Removed cl dependency
@@ -100,8 +104,9 @@
           " Loccur"))
   (force-mode-line-update)
   (loccur-remove-overlays)
-  (when loccur-mode
-    (loccur-1 regex)))
+  (if loccur-mode
+      (loccur-1 regex)
+    (recenter)))
 
 
 (defun loccur-current ()
