@@ -1,4 +1,4 @@
-;;; loccur.el --- Perform an occur-like folding in current buffer
+;;; loccur.el --- Performs an occur-like folding in current buffer.
 
 ;; Copyright (C) 2009 Alexey Veretennikov
 ;;
@@ -6,8 +6,8 @@
 ;; Created: 2009-09-08
 ;; Version: 1.1.1
 ;; Keywords: matching
-;; URL: http://loccur.sourceforge.net/
-;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x
+;; URL: https://github.com/fourier/loccur
+;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x, GNU Emacs 24.x
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -61,8 +61,10 @@
 ;;; Code:
 
 (eval-when-compile (require 'cl))
-
 (defconst loccur-overlay-property-name 'loccur-custom-buffer-grep)
+
+
+; !SECTION! Possible highlighting of the matching regex
 
 (defvar loccur-highlight-matching-regexp t
   "If set to a non-nil value, the part of the line matching the
@@ -79,14 +81,35 @@ regex given in the loccur buffer."
     (setq loccur-highlight-matching-regexp t)))
 
 
-(or (assq 'loccur-mode minor-mode-alist)
-    (nconc minor-mode-alist
-		   (list '(loccur-mode loccur-mode))))
+; !SECTION! Defining the minor-mode
 
+;; Custom Minor Mode
+(define-minor-mode loccur-mode
+  "Performs an occur-like folding in current buffer."
+  ;; The initial value - Set to 1 to enable by default
+  nil
+  ;; The indicator for the mode line.
+  " Loccur"
+  ;; The minor mode keymap
+  `(
+    (,(kbd "RET") . loccur-current)))
 
-(defvar loccur-mode nil) ;; name of the minor mode
-(make-variable-buffer-local 'loccur-mode)
+(defun loccur-toggle-mode (regex)
+  (if (or loccur-mode
+          (null regex)
+          (zerop (length regex)))
+      (loccur-mode -1)
+    (loccur-mode 1))
+  (force-mode-line-update)
+  (loccur-remove-overlays)
+  (if loccur-mode
+      (loccur-1 regex)
+    (recenter)))
+  
 
+; !SECTION! Utils
+
+; !SUBSECTION! History
 
 (defvar loccur-history nil
   "History of previously searched expressions for the prompt")
@@ -97,36 +120,74 @@ regex given in the loccur buffer."
 (make-variable-buffer-local 'loccur-last-match)
 
 
-
-(defvar loccur-overlay-list nil
-  "A list of currently active overlays.")
-(make-variable-buffer-local 'loccur-overlay-list)
-
-
-(defun loccur-mode (regex)
-  (setq	loccur-mode 
-		(if (or loccur-mode
-				(null regex)
-				(zerop (length regex)))
-			nil
-		  " Loccur"))
-  (force-mode-line-update)
-  (loccur-remove-overlays)
-  (when loccur-mode
-	(loccur-1 regex)))
-
-
-(defun loccur-current ()
-  "Call `loccur' for the current word."
-  (interactive)
-  (loccur (current-word)))
-
-
 (defun loccur-previous-match ()
   "Call `loccur' for the previously found word."
   (interactive)
   (loccur loccur-last-match))
 
+
+; !SUBSECTION! Functions dealing with overlays
+
+
+(defvar loccur-overlay-list nil
+  "A list of currently active overlays.")
+(make-variable-buffer-local 'loccur-overlay-list)
+
+(defun loccur-create-highlighted-overlays(buffer-matches)
+  (let ((overlays 
+         (map 'list #'(lambda (match)
+                        (make-overlay
+                         (nth 1 match)
+                         (nth 2 match)
+                         (current-buffer) t nil))
+              buffer-matches)))
+    ;; To possibly remove highlighting of the matching regexp
+    (if loccur-highlight-matching-regexp
+        (mapcar (lambda (ovl) 
+                  (overlay-put ovl loccur-overlay-property-name t)
+                  (overlay-put ovl 'face 'isearch))
+                overlays))))
+
+
+(defun loccur-create-invisible-overlays (ovl-bounds)
+  (let ((overlays 
+         (map 'list #'(lambda (bnd)
+                        (make-overlay
+                         (car bnd)
+                         (cadr bnd)
+                         (current-buffer) t nil))
+              ovl-bounds)))
+    (mapcar (lambda (ovl) 
+              (overlay-put ovl loccur-overlay-property-name t)
+              (overlay-put ovl 'invisible t)
+              ;; force intangible property if invisible property
+              ;; does not automatically set it
+              (overlay-put ovl 'intangible t))
+            overlays)))
+
+
+(defun loccur-remove-overlays ()
+  (remove-overlays (point-min) (point-max) loccur-overlay-property-name t)
+  (setq loccur-overlay-list nil))
+
+
+(defun loccur-create-overlay-bounds-btw-lines (buffer-matches)
+  (let ((prev-end (point-min))
+        (overlays (list)))
+    (when buffer-matches
+      (mapcar (lambda (line)
+                (let ((beginning (car line)))
+                  (unless ( = (- beginning prev-end) 1)
+                    (let ((ovl-start (if (= prev-end 1) 1 prev-end))
+                          (ovl-end  (1- beginning)))
+                      (push (list ovl-start ovl-end) overlays)))
+                  (setq prev-end (nth 3 line))))
+              buffer-matches)
+      (push (list (1+ prev-end) (point-max)) overlays)
+      (setq overlays (nreverse overlays)))))
+
+
+; !SECTION! Main functions, those actually performing the loccur
 
 (defun loccur (regex)
   "Perform a simple grep in current buffer for the regular
@@ -141,8 +202,15 @@ unhides lines again"
      (list (read-string (concat "Regexp<" (loccur-prompt)
                                 ">: ") "" 'loccur-history ))))
   (if (string-equal "" regex) (setq regex (loccur-prompt)))
-  (loccur-mode regex))
+  (loccur-toggle-mode regex)
+  (beginning-of-line)) ; Handier to be at the beginning of line
 
+
+
+(defun loccur-current ()
+  "Call `loccur' for the current word."
+  (interactive)
+  (loccur (current-word)))
 
 (defun loccur-prompt ()
   "Returns the default value of the prompt.
@@ -165,67 +233,14 @@ if its size is 1 line"
 
 (defun loccur-1 (regex)
   (let* ((buffer-matches (loccur-find-matches regex))
-		 (ovl-bounds (loccur-create-overlay-bounds-btw-lines buffer-matches)))
-	(setq loccur-overlay-list 
-		  (loccur-create-invisible-overlays ovl-bounds))
+         (ovl-bounds (loccur-create-overlay-bounds-btw-lines buffer-matches)))
+    (setq loccur-overlay-list 
+          (loccur-create-invisible-overlays ovl-bounds))
     (setq loccur-overlay-list
           (append loccur-overlay-list
                   (loccur-create-highlighted-overlays buffer-matches)))
     (setq loccur-last-match regex)
-	(recenter)))
-
-(defun loccur-create-highlighted-overlays(buffer-matches)
-  (let ((overlays 
-		 (map 'list #'(lambda (match)
-						(make-overlay
-						 (nth 1 match)
-						 (nth 2 match)
-						 (current-buffer) t nil))
-			  buffer-matches)))
-    ;; !ME! To remove highlighting of the matching regexp
-    (if loccur-highlight-matching-regexp
-          (mapcar (lambda (ovl) 
-                    (overlay-put ovl loccur-overlay-property-name t)
-                    (overlay-put ovl 'face 'isearch))
-                  overlays))))
-
-
-(defun loccur-create-invisible-overlays (ovl-bounds)
-  (let ((overlays 
-		 (map 'list #'(lambda (bnd)
-						(make-overlay
-						 (car bnd)
-						 (cadr bnd)
-						 (current-buffer) t nil))
-			  ovl-bounds)))
-	(mapcar (lambda (ovl) 
-              (overlay-put ovl loccur-overlay-property-name t)
-              (overlay-put ovl 'invisible t)
-              ;; force intangible property if invisible property
-              ;; does not automatically set it
-              (overlay-put ovl 'intangible t))
-            overlays)))
-
-
-(defun loccur-remove-overlays ()
-  (remove-overlays (point-min) (point-max) loccur-overlay-property-name t)
-  (setq loccur-overlay-list nil))
-
-
-(defun loccur-create-overlay-bounds-btw-lines (buffer-matches)
-  (let ((prev-end (point-min))
-		(overlays (list)))
-	(when buffer-matches
-	  (mapcar (lambda (line)
-                (let ((beginning (car line)))
-                  (unless ( = (- beginning prev-end) 1)
-                    (let ((ovl-start (if (= prev-end 1) 1 prev-end))
-                          (ovl-end  (1- beginning)))
-                      (push (list ovl-start ovl-end) overlays)))
-                  (setq prev-end (nth 3 line))))
-              buffer-matches)
-	  (push (list (1+ prev-end) (point-max)) overlays)
-	  (setq overlays (nreverse overlays)))))
+    (recenter)))
 
 
 (defun loccur-find-matches (regex)
@@ -233,19 +248,19 @@ if its size is 1 line"
 1st match begin of a line, 1st match end of a line, end of a line
 containing match"
   (save-excursion
-	;; Go to the beginnig of buffer
-	(goto-char (point-min))
-	;; Set initial values for variables
-	(let ((matches 0)
-		  (curpoint nil)
-		  (endpoint nil)
-		  (lines (list)))
-	  ;; Search loop
-	  (while (not (eobp))
-		(setq curpoint (point))
-		;; if something found
-		(when (setq endpoint (re-search-forward regex nil t))
-		  (save-excursion
+    ;; Go to the beginnig of buffer
+    (goto-char (point-min))
+    ;; Set initial values for variables
+    (let ((matches 0)
+          (curpoint nil)
+          (endpoint nil)
+          (lines (list)))
+      ;; Search loop
+      (while (not (eobp))
+        (setq curpoint (point))
+        ;; if something found
+        (when (setq endpoint (re-search-forward regex nil t))
+          (save-excursion
             (let ((found-begin (match-beginning 0))
                   (found-end (match-end 0)))
               ;; Get the start and the and of the matching line
@@ -253,11 +268,12 @@ containing match"
               (goto-char found-begin)
               (setq endpoint (line-end-position))
               (push (list (line-beginning-position) found-begin found-end endpoint) lines)))
-		  ;; maybe add some code to highlight matches like in occur-mode?
-		  ;; goto the end of line for any case
-		  (goto-char endpoint))
-		(forward-line 1))
-	  (setq lines (nreverse lines)))))
+          ;; maybe add some code to highlight matches like in occur-mode?
+          ;; goto the end of line for any case
+          (goto-char endpoint))
+        (forward-line 1))
+      (setq lines (nreverse lines)))))
+
 
 
 (provide 'loccur)
