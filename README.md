@@ -1,14 +1,14 @@
-Functionnalities
-================
+Functionalities
+===============
 
 
 Provides is a minor mode for Emacs acting like occur but without
 creating a new window. It just hides all the text except lines
-containing matches for a given regex. The following functions are
+containing matches for a given regexp. The following functions are
 provided:
  
- + `loccur` Prompts for a regex and hides all the lines not containing
- matches. If the given regex is empty, defaults to the current
+ + `loccur` Prompts for a regexp and hides all the lines not containing
+ matches. If the given regexp is empty, defaults to the current
  selection and, if the selection is also empty, defaults to the word
  at point.
  + `loccur-previous-match` Repeats the last `loccur` search.
@@ -19,13 +19,15 @@ After `loccur` is ran, hit `RET` to move to the line where the cursor
 is and display everything again.
 
 The good thing about this mode is that you can navigate through the
-buffer easily. In particular, if you bind `(loccur ""
+buffer easily. In particular, hopefully useful functions using
+`loccur` are suggested in Section
+[Quick Navigation](#quick-navigation).
 
 
 Example
 =======
 
-If you run `loccur` on regex `[0-9]+` (finding any decimal number) on
+If you run `loccur` on regexp `[0-9]+` (finding any decimal number) on
 the following buffer,
 
 
