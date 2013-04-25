@@ -1,10 +1,10 @@
 ;;; loccur.el --- Performs an occur-like folding in current buffer.
 
-;; Copyright (C) 2009 Alexey Veretennikov
+;; Copyright (C) 2009-2013 Alexey Veretennikov
 ;;
 ;; Author: Alexey Veretennikov <alexey dot veretennikov at gmail dot com>
 ;; Created: 2009-09-08
-;; Version: 1.1.1
+;; Version: 1.2
 ;; Keywords: matching
 ;; URL: https://github.com/fourier/loccur
 ;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x, GNU Emacs 24.x
