@@ -4,10 +4,10 @@
 ;;
 ;; Author: Alexey Veretennikov <alexey dot veretennikov at gmail dot com>
 ;; Created: 2009-09-08
-;; Version: 1.2
+;; Version: 1.2.1
 ;; Keywords: matching
 ;; URL: https://github.com/fourier/loccur
-;; Compatibility: GNU Emacs 22.x, GNU Emacs 23.x, GNU Emacs 24.x
+;; Compatibility: GNU Emacs 23.x, GNU Emacs 24.x
 ;;
 ;; This file is NOT part of GNU Emacs.
 ;;
@@ -43,6 +43,10 @@
 ;;; TODO:
 ;; 
 ;;; Change Log:
+;; 
+;; 2013-10-22 (1.2.1)
+;;    + Added custom option loccur-jump-beginning-of-line; removed some
+;;    of cl dependencies
 ;;
 ;; 2013-03-31 (1.2)
 ;;    + Added possibility to desactivate regex highlight, moved
@@ -68,7 +72,7 @@
 (defconst loccur-overlay-property-name 'loccur-custom-buffer-grep)
 
 
-; !SECTION! Possible highlighting of the matching regex
+;; !SECTION! Possible highlighting of the matching regex
 
 (defvar loccur-highlight-matching-regexp t
   "If set to a non-nil value, the part of the line matching the
@@ -83,12 +87,9 @@ when the loccur function is called.")
   "Toggles the highlighting of the part of the line matching the
 regex given in the loccur buffer."
   (interactive)
-  (if loccur-highlight-matching-regexp
-      (setq loccur-highlight-matching-regexp nil)
-    (setq loccur-highlight-matching-regexp t)))
+  (setq loccur-highlight-matching-regexp (not loccur-highlight-matching-regexp)))
 
-
-; !SECTION! Defining the minor-mode
+;; !SECTION! Defining the minor-mode
 
 ;; Custom Minor Mode
 (define-minor-mode loccur-mode
@@ -112,11 +113,11 @@ regex given in the loccur buffer."
   (if loccur-mode
       (loccur-1 regex)
     (recenter)))
-  
 
-; !SECTION! Utils
 
-; !SUBSECTION! History
+;; !SECTION! Utils
+
+;; !SUBSECTION! History
 
 (defvar loccur-history nil
   "History of previously searched expressions for the prompt")
@@ -133,7 +134,7 @@ regex given in the loccur buffer."
   (loccur loccur-last-match))
 
 
-; !SUBSECTION! Functions dealing with overlays
+;; !SUBSECTION! Functions dealing with overlays
 
 
 (defvar loccur-overlay-list nil
@@ -142,12 +143,12 @@ regex given in the loccur buffer."
 
 (defun loccur-create-highlighted-overlays(buffer-matches)
   (let ((overlays
-         (map 'list #'(lambda (match)
-                        (make-overlay
-                         (nth 1 match)
-                         (nth 2 match)
-                         (current-buffer) t nil))
-              buffer-matches)))
+         (mapcar (lambda (match)
+                   (make-overlay
+                    (nth 1 match)
+                    (nth 2 match)
+                    (current-buffer) t nil))
+                 buffer-matches)))
     ;; To possibly remove highlighting of the matching regexp
     (if loccur-highlight-matching-regexp
         (mapcar (lambda (ovl)
@@ -158,12 +159,12 @@ regex given in the loccur buffer."
 
 (defun loccur-create-invisible-overlays (ovl-bounds)
   (let ((overlays
-         (map 'list #'(lambda (bnd)
-                        (make-overlay
-                         (car bnd)
-                         (cadr bnd)
-                         (current-buffer) t nil))
-              ovl-bounds)))
+         (mapcar (lambda (bnd)
+                   (make-overlay
+                    (car bnd)
+                    (cadr bnd)
+                    (current-buffer) t nil))
+                 ovl-bounds)))
     (mapcar (lambda (ovl)
               (overlay-put ovl loccur-overlay-property-name t)
               (overlay-put ovl 'invisible t)
@@ -194,7 +195,7 @@ regex given in the loccur buffer."
       (setq overlays (nreverse overlays)))))
 
 
-; !SECTION! Main functions, those actually performing the loccur
+;; !SECTION! Main functions, those actually performing the loccur
 
 (defun loccur (regex)
   "Perform a simple grep in current buffer for the regular
