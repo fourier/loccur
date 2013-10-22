@@ -65,7 +65,6 @@
 ;;
 ;;; Code:
 
-(eval-when-compile (require 'cl))
 (defconst loccur-overlay-property-name 'loccur-custom-buffer-grep)
 
 
@@ -76,6 +75,9 @@
 regex is highlighted. Use loccur-toggle-highlight to modify its
 value interactively.")
 
+(defcustom loccur-jump-beginning-of-line nil
+  "Determines if cursor shall be at the beginning of the line
+when the loccur function is called.")
 
 (defun loccur-toggle-highlight()
   "Toggles the highlighting of the part of the line matching the
@@ -139,7 +141,7 @@ regex given in the loccur buffer."
 (make-variable-buffer-local 'loccur-overlay-list)
 
 (defun loccur-create-highlighted-overlays(buffer-matches)
-  (let ((overlays 
+  (let ((overlays
          (map 'list #'(lambda (match)
                         (make-overlay
                          (nth 1 match)
@@ -148,21 +150,21 @@ regex given in the loccur buffer."
               buffer-matches)))
     ;; To possibly remove highlighting of the matching regexp
     (if loccur-highlight-matching-regexp
-        (mapcar (lambda (ovl) 
+        (mapcar (lambda (ovl)
                   (overlay-put ovl loccur-overlay-property-name t)
                   (overlay-put ovl 'face 'isearch))
                 overlays))))
 
 
 (defun loccur-create-invisible-overlays (ovl-bounds)
-  (let ((overlays 
+  (let ((overlays
          (map 'list #'(lambda (bnd)
                         (make-overlay
                          (car bnd)
                          (cadr bnd)
                          (current-buffer) t nil))
               ovl-bounds)))
-    (mapcar (lambda (ovl) 
+    (mapcar (lambda (ovl)
               (overlay-put ovl loccur-overlay-property-name t)
               (overlay-put ovl 'invisible t)
               ;; force intangible property if invisible property
@@ -201,14 +203,15 @@ expression REGEX
 This command hides all lines from the current buffer except those
 containing the regular expression REGEX. A second call of the function
 unhides lines again"
-  (interactive 
+  (interactive
    (if loccur-mode
        (list nil)
      (list (read-string (concat "Regexp<" (loccur-prompt)
                                 ">: ") "" 'loccur-history ))))
   (if (string-equal "" regex) (setq regex (loccur-prompt)))
   (loccur-toggle-mode regex)
-  (beginning-of-line)) ; Handier to be at the beginning of line
+  (when loccur-jump-beginning-of-line
+    (beginning-of-line))) ; optionally jump to the beginning of line
 
 
 
@@ -239,7 +242,7 @@ if its size is 1 line"
 (defun loccur-1 (regex)
   (let* ((buffer-matches (loccur-find-matches regex))
          (ovl-bounds (loccur-create-overlay-bounds-btw-lines buffer-matches)))
-    (setq loccur-overlay-list 
+    (setq loccur-overlay-list
           (loccur-create-invisible-overlays ovl-bounds))
     (setq loccur-overlay-list
           (append loccur-overlay-list
