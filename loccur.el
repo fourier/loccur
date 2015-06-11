@@ -75,13 +75,12 @@
 ;; !SECTION! Possible highlighting of the matching regex
 
 (defvar loccur-highlight-matching-regexp t
-  "If set to a non-nil value, the part of the line matching the
-regex is highlighted. Use loccur-toggle-highlight to modify its
-value interactively.")
+  "Determines if the part of the line matching the regex is highlighted.
+If set to a non-nil value, highlight.  Use `loccur-toggle-highlight' to
+modify its value interactively.")
 
 (defcustom loccur-jump-beginning-of-line nil
-  "Determines if cursor shall be at the beginning of the line
-when the loccur function is called.")
+  "Set cursor to the beginning of the line when the loccur function is called.")
 
 (defun loccur-toggle-highlight()
   "Toggles the highlighting of the part of the line matching the
@@ -103,6 +102,7 @@ regex given in the loccur buffer."
     (,(kbd "RET") . loccur-current)))
 
 (defun loccur-toggle-mode (regex)
+  "Toggle the function `loccur-mode' for REGEX."
   (if (or loccur-mode
           (null regex)
           (zerop (length regex)))
@@ -120,11 +120,11 @@ regex given in the loccur buffer."
 ;; !SUBSECTION! History
 
 (defvar loccur-history nil
-  "History of previously searched expressions for the prompt")
+  "History of previously searched expressions for the prompt.")
 (make-variable-buffer-local 'loccur-history)
 
 (defvar loccur-last-match nil
-  "Last match found")
+  "Last match found.")
 (make-variable-buffer-local 'loccur-last-match)
 
 
@@ -141,7 +141,8 @@ regex given in the loccur buffer."
   "A list of currently active overlays.")
 (make-variable-buffer-local 'loccur-overlay-list)
 
-(defun loccur-create-highlighted-overlays(buffer-matches)
+(defun loccur-create-highlighted-overlays (buffer-matches)
+  "Create the list of overlays for BUFFER-MATCHES."
   (let ((overlays
          (mapcar (lambda (match)
                    (make-overlay
@@ -158,6 +159,7 @@ regex given in the loccur buffer."
 
 
 (defun loccur-create-invisible-overlays (ovl-bounds)
+  "Create a list of invisible overlays by given OVL-BOUNDS."
   (let ((overlays
          (mapcar (lambda (bnd)
                    (make-overlay
@@ -175,11 +177,13 @@ regex given in the loccur buffer."
 
 
 (defun loccur-remove-overlays ()
+  "Remove all overlays."
   (remove-overlays (point-min) (point-max) loccur-overlay-property-name t)
   (setq loccur-overlay-list nil))
 
 
 (defun loccur-create-overlay-bounds-btw-lines (buffer-matches)
+  "Create a list of overlays between matched lines BUFFER-MATCHES."
   (let ((prev-end (point-min))
         (overlays (list)))
     (when buffer-matches
@@ -198,11 +202,10 @@ regex given in the loccur buffer."
 ;; !SECTION! Main functions, those actually performing the loccur
 
 (defun loccur (regex)
-  "Perform a simple grep in current buffer for the regular
-expression REGEX
+  "Perform a simple grep in current buffer.
 
 This command hides all lines from the current buffer except those
-containing the regular expression REGEX. A second call of the function
+containing the regular expression REGEX.  A second call of the function
 unhides lines again"
   (interactive
    (if loccur-mode
@@ -222,7 +225,7 @@ unhides lines again"
   (loccur (current-word)))
 
 (defun loccur-prompt ()
-  "Returns the default value of the prompt.
+  "Return the default value of the prompt.
 
 Default value for prompt is a current word or active region(selection),
 if its size is 1 line"
@@ -241,6 +244,9 @@ if its size is 1 line"
 
 
 (defun loccur-1 (regex)
+  "Implementation of the `loccur' functionality.
+
+REGEX is an argument to `loccur'."
   (let* ((buffer-matches (loccur-find-matches regex))
          (ovl-bounds (loccur-create-overlay-bounds-btw-lines buffer-matches)))
     (setq loccur-overlay-list
@@ -253,7 +259,9 @@ if its size is 1 line"
 
 
 (defun loccur-find-matches (regex)
-  "Returns a list of 4-number tuples, specifying begnning of the line,
+  "Find all occurences in the current buffer for given REGEX.
+
+Returns a list of 4-number tuples, specifying begnning of the line,
 1st match begin of a line, 1st match end of a line, end of a line
 containing match"
   (save-excursion
