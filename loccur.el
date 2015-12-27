@@ -52,7 +52,6 @@
 ;;    + Default value is taken from prompt instead of an edit area
 ;;    (thanks to Nathaniel Flath)
 ;;
-;;
 ;; 2009-10-05 (1.1.0)
 ;;    + Added highlighting of the matched strings
 ;;    + Now inserts selected region to the prompt
@@ -67,19 +66,9 @@
 (defconst loccur-overlay-property-name 'loccur-custom-buffer-grep
   "Property name of the overlay for all visible text")
 
-(defvar loccur-highlight-matching-regexp t
-  "Determines if the part of the line matching the regex is highlighted.
-If set to a non-nil value, highlight.  Use `loccur-toggle-highlight' to
-modify its value interactively.")
-
 (defcustom loccur-jump-beginning-of-line nil
   "Set cursor to the beginning of the line when the loccur function is called.")
 
-(defun loccur-toggle-highlight()
-  "Toggles the highlighting of the part of the line matching the
-regex given in the loccur buffer."
-  (interactive)
-  (setq loccur-highlight-matching-regexp (not loccur-highlight-matching-regexp)))
 
 ;; FIXME wtf?
 (or (assq 'loccur-mode minor-mode-alist)
@@ -103,7 +92,7 @@ regex given in the loccur buffer."
 (make-variable-buffer-local 'loccur-overlay-list)
 
 (defun loccur-mode (regex)
-  (setq	loccur-mode 
+  (setq loccur-mode 
         (if (or loccur-mode
                 (null regex)
                 (zerop (length regex)))
@@ -180,18 +169,16 @@ REGEX is an argument to `loccur'."
 (defun loccur-create-highlighted-overlays(buffer-matches)
   "Create the list of overlays for BUFFER-MATCHES."
   (let ((overlays 
-         (map 'list #'(lambda (match)
-                        (make-overlay
-                         (nth 1 match)
-                         (nth 2 match)
-                         (current-buffer) t nil))
-              buffer-matches)))
-    ;; !ME! To remove highlighting of the matching regexp
-    (if loccur-highlight-matching-regexp
-        (mapcar (lambda (ovl) 
-                  (overlay-put ovl loccur-overlay-property-name t)
-                  (overlay-put ovl 'face 'isearch))
-                overlays))))
+         (mapcar (lambda (match)
+                   (make-overlay
+                    (nth 1 match)
+                    (nth 2 match)
+                    (current-buffer) t nil))
+                 buffer-matches)))
+    (mapcar (lambda (ovl) 
+              (overlay-put ovl loccur-overlay-property-name t)
+              (overlay-put ovl 'face 'isearch))
+            overlays)))
 
 
 (defun loccur-create-invisible-overlays (ovl-bounds)
