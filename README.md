@@ -28,22 +28,20 @@ Example
 If you run `loccur` on regex `[0-9]+` (finding any decimal number) on
 the following buffer,
 
-
-    Lorem ipsum dolor 100 sit amet, consectetur adipisicing elit, sed
-    do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-    enim ad minim veniam, quis 20090 nostrud exercitation ullamco
-    laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-    dolor in reprehenderit in voluptate velit esse cillum dolore eu
-    fugiat nulla pariatur. Excepteur sint occaecat 3 cupidatat non
-    proident, sunt in culpa qui officia deserunt mollit anim id est
-    laborum.
+``` Lorem ipsum dolor 100 sit amet, consectetur adipisicing elit, sed
+do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+ad minim veniam, quis 20090 nostrud exercitation ullamco laboris nisi
+ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+pariatur. Excepteur sint occaecat 3 cupidatat non proident, sunt in
+culpa qui officia deserunt mollit anim id est laborum.```
 
 we obtain
 
-    Lorem ipsum dolor 100 sit amet, consectetur adipisicing elit, sed
-    enim ad minim veniam, quis 20090 nostrud exercitation ullamco
-    fugiat nulla pariatur. Excepteur sint occaecat 3 cupidatat non
-
+``` Lorem ipsum dolor 100 sit amet, consectetur adipisicing elit, sed
+ad minim veniam, quis 20090 nostrud exercitation ullamco laboris nisi
+pariatur. Excepteur sint occaecat 3 cupidatat non proident, sunt in
+```
 
 and, if we hit `RET` on the third line of this display, the first
 content is displayed again and the cursor is placed on the 6th line.
@@ -100,12 +98,11 @@ declaration in a beamer LaTeX file."
 ```
 
 When running this command, this buffer
-
 ```
 \begin{frame}
- \frametitle{First frame}
+  \frametitle{First frame}
 
- <insert fascinating content here>
+  <insert fascinating content here>
 \end{frame}
 
 \begin{frame}
