@@ -48,11 +48,6 @@
 ;;    + Added custom option loccur-jump-beginning-of-line; removed some
 ;;    of cl dependencies
 ;;
-;; 2013-03-31 (1.2)
-;;    + Added possibility to desactivate regex highlight, moved
-;;    function in different sections and added the RET keyboard
-;;    shortcut in loccur-mode (Leo Perrin).
-;;
 ;; 2010-03-07 (1.1.1)
 ;;    + Default value is taken from prompt instead of an edit area
 ;;    (thanks to Nathaniel Flath)
