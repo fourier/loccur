@@ -109,7 +109,7 @@ a new window."
 Default: nil")
 
 (defcustom loccur-highlight-matching-regexp t
-  "If set to nil, the `loccur-mode' will not highlight matching words.
+  "If set to nil, do not highlight matching words.
 Default: t")
 
 (defvar loccur-history nil
@@ -134,6 +134,16 @@ Default: t")
   "Call `loccur' for the previously found word."
   (interactive)
   (loccur loccur-last-match))
+
+(defun loccur-no-highlight (regex)
+  "Perform search like loccur, but temporary removing match highlight.
+REGEX is regexp to search"
+  (interactive
+   (if loccur-mode
+       nil
+     (list (read-string "Loccur: " (loccur-prompt) 'loccur-history))))
+  (let ((loccur-highlight-matching-regexp nil))
+    (loccur regex)))
 
 (defun loccur (regex)
   "Perform a simple grep in current buffer.
@@ -291,7 +301,8 @@ containing match"
       (setq lines (nreverse lines)))))
 
 (defun loccur-toggle-highlight (&optional arg)
-  "Toggle the highlighting of the matches"
+  "Toggle the highlighting of the match.
+Optional argument ARG if t turn highlight on, off otherwise."
   (interactive)
   (setq loccur-highlight-matching-regexp (not loccur-highlight-matching-regexp))
   (when loccur-mode
