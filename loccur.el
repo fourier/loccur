@@ -286,14 +286,6 @@ containing match"
         (forward-line 1))
       (setq lines (nreverse lines)))))
 
-(defun loccur-no-highlight(regex)
-  "Displays only the lines matching a given regex with no
-highlithing of any part of the lines."
-  (let (old-highlighting)
-    (setq old-highlighting loccur-highlight-matching-regexp)
-    (setq loccur-highlight-matching-regexp nil)
-    (loccur regex)
-    (setq loccur-highlight-matching-regexp old-highlighting)))
 
 
 (provide 'loccur)
