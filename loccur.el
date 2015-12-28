@@ -162,9 +162,10 @@ containing the regular expression REGEX.  A second call of the function
 unhides lines again"
   (interactive
    (if loccur-mode
-       nil
+       (list nil)
      (list (read-string "Loccur: " (loccur-prompt) 'loccur-history))))
-  (if (or (not regex) loccur-mode)
+  (if (or loccur-mode
+          (= (length regex) 0))
       (progn
         ;; remove current search and turn off loccur mode
         ;; to allow to call `loccur' multiple times
