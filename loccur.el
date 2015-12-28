@@ -111,11 +111,14 @@ a new window."
 
 (defcustom loccur-jump-beginning-of-line nil
   "Set cursor to the beginning of the line when the loccur function is called.
-Default: nil")
+Default: nil"
+  :type '(boolean)
+  :group 'loccur)
 
 (defcustom loccur-highlight-matching-regexp t
   "If set to nil, do not highlight matching words.
 Default: t"
+  :type '(boolean)  
   :group 'loccur)
 
 (defvar loccur-history nil
