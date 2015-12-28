@@ -70,6 +70,10 @@
 
 (require 'cl-lib)
 
+(defgroup loccur nil
+  "Perform an occur-like folding in current buffer."
+  :group 'tools)
+
 ;; should be defined before define-minor-mode
 (defvar loccur-mode-map
   (let ((map (make-sparse-keymap)))
@@ -95,7 +99,8 @@ a new window."
 
 (defface loccur-face
   '((t (:inherit isearch)))
-  "Loccur face")
+  "Loccur face"
+  :group 'loccur)
 
 
 (defconst loccur-overlay-invisible-property-name 'loccur-invisible-overlay
@@ -110,7 +115,8 @@ Default: nil")
 
 (defcustom loccur-highlight-matching-regexp t
   "If set to nil, do not highlight matching words.
-Default: t")
+Default: t"
+  :group 'loccur)
 
 (defvar loccur-history nil
   "History of previously searched expressions for the prompt.")
