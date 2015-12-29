@@ -1,4 +1,27 @@
-There is a minor mode for Emacs acting like occur but w/o creating a new window. It just hides all the text excepting lines containing matches. To use it, add the following to your .emacs file:
+# Loccur
+## Introduction
+**Loccur** is an amazing tool to quickly navigate in a file. It is a minor mode for Emacs acting like **occur** but w/o creating a new window. It just hides all the text excepting lines containing matches.
+## Installation
+Add to your `.emacs` or `.emacs.d/init.el` following lines:
+
+```scheme
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+```
+                         
+Press `M-x` in GNU Emacs and write `list-packages`. Find the `loccur` in the list of packages and press `i` to select this package, `x` to install the package.
+
+
+## Screenshots
+Better to see it once:
+
+![loccur_gui](https://github.com/fourier/loccur/raw/screenshots/gui_emacs_with_loccur.gif "GUI Emacs with loccur")
+![loccur_term](https://github.com/fourier/loccur/raw/screenshots/emacs_with_loccur.gif "Emacs in terminal with loccur")
+
+
+## Usage
+
+To use it, add the following to your .emacs file:
 
 ```scheme
 (require 'loccur)
@@ -10,4 +33,4 @@ There is a minor mode for Emacs acting like occur but w/o creating a new window.
 (define-key global-map [(control shift o)] 'loccur-previous-match)
 ```
 
-Now you can point the cursor to the word and press "Ctrl+o" to hide all lines except those containing this word. Moving cursor to the required line and pressing "Ctrl+o" again will shows all the text. The good thing about this mode is what you can navigate through the buffer easily. "Ctrl+Shift+o" will repeat last search. 
+Now you can point the cursor to the word and press `Ctrl+o` to hide all lines except those containing this word. Moving cursor to the required line and pressing `Ctrl+o` again will shows all the text. The good thing about this mode is what you can navigate through the buffer easily. `Ctrl+Shift+o` will repeat last search. 
