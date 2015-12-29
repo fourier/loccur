@@ -154,6 +154,16 @@ REGEX is regexp to search"
   (let ((loccur-highlight-matching-regexp nil))
     (loccur regex)))
 
+(defun loccur-toggle-highlight (&optional arg)
+  "Toggle the highlighting of the match.
+Optional argument ARG if t turn highlight on, off otherwise."
+  (interactive)
+  (setq loccur-highlight-matching-regexp (not loccur-highlight-matching-regexp))
+  (when loccur-mode
+    (dolist (ovl loccur-overlay-list)
+      (when (overlay-get ovl loccur-overlay-visible-property-name)
+        (overlay-put ovl 'face (if loccur-highlight-matching-regexp 'loccur-face nil))))))
+
 (defun loccur (regex)
   "Perform a simple grep in current buffer.
 
@@ -179,7 +189,6 @@ unhides lines again"
       (loccur-mode)
       (when loccur-jump-beginning-of-line
         (beginning-of-line))))) ; optionally jump to the beginning of line
-
 
 
 (defun loccur-prompt ()
@@ -310,15 +319,6 @@ containing match"
         (forward-line 1))
       (setq lines (nreverse lines)))))
 
-(defun loccur-toggle-highlight (&optional arg)
-  "Toggle the highlighting of the match.
-Optional argument ARG if t turn highlight on, off otherwise."
-  (interactive)
-  (setq loccur-highlight-matching-regexp (not loccur-highlight-matching-regexp))
-  (when loccur-mode
-    (dolist (ovl loccur-overlay-list)
-      (when (overlay-get ovl loccur-overlay-visible-property-name)
-        (overlay-put ovl 'face (if loccur-highlight-matching-regexp 'loccur-face nil))))))
         
     
 

@@ -33,4 +33,18 @@ To use it, add the following to your .emacs file:
 (define-key global-map [(control shift o)] 'loccur-previous-match)
 ```
 
-Now you can point the cursor to the word and press `Ctrl+o` to hide all lines except those containing this word. Moving cursor to the required line and pressing `Ctrl+o` again will shows all the text. The good thing about this mode is what you can navigate through the buffer easily. `Ctrl+Shift+o` will repeat last search. 
+Now you can point the cursor to the word and press `Ctrl+o` to hide all lines except those containing this word. Moving cursor to the required line and pressing `Ctrl+o` again will shows all the text. The good thing about this mode is what you can navigate through the buffer easily. `Ctrl+Shift+o` will repeat last search.
+
+### Available commands
+Below is the list of interactive commands available for user:
+
+* `loccur` interactively asks user for regexp to search or toggle search off (if `loccur-mode` is already enabled)
+* `loccur-current` searches for the current word under the cursor
+* `loccur-previous-match` repeat previous `loccur` command
+* `loccur-no-highlight` is the same as `loccur` but not highlighting matches
+* `loccur-toggle-highlight` toggles highlighting of matches
+
+### Customization
+* `loccur-jump-beginning-of-line` variable specifies if move the cursor to the beginning of the matching line. Default `nil`
+* `loccur-highlight-matching-regexp` variable whenever `loccur` should highlight matching words. Default `t`.
+* `loccur-face` face to be used while highlighting. Default points to `isearch` face.
