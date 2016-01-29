@@ -1,28 +1,30 @@
-;;; loccur.el --- Perform an occur-like folding in current buffer
+;;; loccur.el --- Perform an occur-like folding in current buffer -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2015 Alexey Veretennikov
+;; Copyright (C) 2009-2016 Free Software Foundation, Inc
 ;;
-;; Author: Alexey Veretennikov <alexey dot veretennikov at gmail dot com>
+;; Author: Alexey Veretennikov <alexey.veretennikov@gmail.com>
+;;
 ;; Created: 2009-09-08
 ;; Version: 1.2.2
+;; Package-Requires: ((cl-lib "0"))
 ;; Keywords: matching
 ;; URL: https://github.com/fourier/loccur
 ;; Compatibility: GNU Emacs 23.x, GNU Emacs 24.x
 ;;
-;; This file is NOT part of GNU Emacs.
+;; This file is part of GNU Emacs.
 ;;
-;; This program is free software; you can redistribute it and/or
-;; modify it under the terms of the GNU General Public License
-;; as published by the Free Software Foundation; either version 2
-;; of the License, or (at your option) any later version.
+;; GNU Emacs is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
 ;;
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 ;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <http://www.gnu.org/licenses/>.
 ;;
 ;;; Commentary:
 ;;
@@ -91,7 +93,6 @@
 Hides all lines without matches like `occur' does, but without opening
 a new window."
   :lighter " loccur"
-  :keymap loccur-mode-map
   (if loccur-mode
       (loccur-1 loccur-current-search)
     (loccur-remove-overlays)
@@ -99,8 +100,7 @@ a new window."
 
 (defface loccur-face
   '((t (:inherit isearch)))
-  "Loccur face"
-  :group 'loccur)
+  "Loccur face")
 
 
 (defconst loccur-overlay-invisible-property-name 'loccur-invisible-overlay
@@ -118,7 +118,7 @@ Default: nil"
 (defcustom loccur-highlight-matching-regexp t
   "If set to nil, do not highlight matching words.
 Default: t"
-  :type '(boolean)  
+  :type '(boolean)
   :group 'loccur)
 
 (defvar loccur-history nil
@@ -201,10 +201,11 @@ if its size is 1 line"
                   mark-active)
              (let ((pos1 (region-beginning))
                    (pos2 (region-end)))
-               ;; Check if the start and the of an active region is on
+               ;; Check if the start and the end of an active region is on
                ;; the same line
-               (if (= (line-number-at-pos pos1)
-                      (line-number-at-pos pos2))
+               (when (save-excursion
+                       (goto-char pos1)
+                       (<= pos2 (line-end-position)))
                    (buffer-substring-no-properties pos1 pos2)))
            (current-word))))
     prompt))
