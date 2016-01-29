@@ -154,9 +154,8 @@ REGEX is regexp to search"
   (let ((loccur-highlight-matching-regexp nil))
     (loccur regex)))
 
-(defun loccur-toggle-highlight (&optional arg)
-  "Toggle the highlighting of the match.
-Optional argument ARG if t turn highlight on, off otherwise."
+(defun loccur-toggle-highlight ()
+  "Toggle the highlighting of the match."
   (interactive)
   (setq loccur-highlight-matching-regexp (not loccur-highlight-matching-regexp))
   (when loccur-mode
@@ -272,13 +271,13 @@ REGEX is an argument to `loccur'."
   (let ((prev-end (point-min))
         (overlays (list)))
     (when buffer-matches
-      (mapcar (lambda (line)
-                (let ((beginning (car line)))
-                  (unless ( = (- beginning prev-end) 1)
-                    (let ((ovl-end  (1- beginning)))
-                      (push (list prev-end ovl-end) overlays)))
-                  (setq prev-end (nth 3 line))))
-              buffer-matches)
+      (mapc (lambda (line)
+              (let ((beginning (car line)))
+                (unless ( = (- beginning prev-end) 1)
+                  (let ((ovl-end  (1- beginning)))
+                    (push (list prev-end ovl-end) overlays)))
+                (setq prev-end (nth 3 line))))
+            buffer-matches)
       (push (list (1+ prev-end) (point-max)) overlays)
       (setq overlays (nreverse overlays)))))
 
@@ -293,13 +292,10 @@ containing match"
     ;; Go to the beginnig of buffer
     (goto-char (point-min))
     ;; Set initial values for variables
-    (let ((matches 0)
-          (curpoint nil)
-          (endpoint nil)
+    (let ((endpoint nil)
           (lines (list)))
       ;; Search loop
       (while (not (eobp))
-        (setq curpoint (point))
         ;; if something found
         (when (setq endpoint (re-search-forward regex nil t))
           (save-excursion
