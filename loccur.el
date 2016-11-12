@@ -174,11 +174,12 @@ When called interactively, either prompts the user for REGEXP or,
 when called with an active region, uses the content of the
 region."
   (interactive
-   (if (region-active-p)
-       (list (buffer-substring (mark) (point)))
-     (if loccur-mode
-         (list nil)
-       (list (read-string "Loccur: " (loccur-prompt) 'loccur-history)))))
+   (cond ((region-active-p)
+          (list (buffer-substring (mark) (point))))
+         (loccur-mode
+          (list nil))
+         (t
+          (list (read-string "Loccur: " (loccur-prompt) 'loccur-history)))))
   (when (region-active-p) (deactivate-mark))
   (if (or loccur-mode
           (= (length regex) 0))
