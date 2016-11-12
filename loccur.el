@@ -168,11 +168,18 @@ REGEX is regexp to search"
 
 This command hides all lines from the current buffer except those
 containing the regular expression REGEX.  A second call of the function
-unhides lines again"
+unhides lines again.
+
+When called interactively, either prompts the user for REGEXP or,
+when called with an active region, uses the content of the
+region."
   (interactive
-   (if loccur-mode
-       (list nil)
-     (list (read-string "Loccur: " (loccur-prompt) 'loccur-history))))
+   (if (region-active-p)
+       (list (buffer-substring (mark) (point)))
+     (if loccur-mode
+         (list nil)
+       (list (read-string "Loccur: " (loccur-prompt) 'loccur-history)))))
+  (when (region-active-p) (deactivate-mark))
   (if (or loccur-mode
           (= (length regex) 0))
       (progn
