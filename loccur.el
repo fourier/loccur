@@ -29,7 +29,7 @@
 ;;; Commentary:
 ;;
 ;; Add the following to your .emacs file:
-;; 
+;;
 ;; (require 'loccur)
 ;; ;; defines shortcut for loccur of the current word
 ;; (define-key global-map [(control o)] 'loccur-current)
@@ -43,14 +43,14 @@
 ;; gives unexpected jumps in loccur mode
 ;;
 ;;; TODO:
-;; 
+;;
 ;;; Change Log:
 ;;
 ;; 2015-12-27 (1.2.2)
 ;;    + Preparation for GNU ELPA submission. Removed contributions
 ;;    without signed papers
 ;;    + added loccur-face - face to highlight text, by default isearch
-;; 
+;;
 ;; 2013-10-22 (1.2.1)
 ;;    + Added custom option loccur-jump-beginning-of-line; removed some
 ;;    of cl dependencies
@@ -168,11 +168,19 @@ REGEX is regexp to search"
 
 This command hides all lines from the current buffer except those
 containing the regular expression REGEX.  A second call of the function
-unhides lines again"
+unhides lines again.
+
+When called interactively, either prompts the user for REGEXP or,
+when called with an active region, uses the content of the
+region."
   (interactive
-   (if loccur-mode
-       (list nil)
-     (list (read-string "Loccur: " (loccur-prompt) 'loccur-history))))
+   (cond ((region-active-p)
+          (list (buffer-substring (mark) (point))))
+         (loccur-mode
+          (list nil))
+         (t
+          (list (read-string "Loccur: " (loccur-prompt) 'loccur-history)))))
+  (when (region-active-p) (deactivate-mark))
   (if (or loccur-mode
           (= (length regex) 0))
       (progn
@@ -315,8 +323,8 @@ containing match"
         (forward-line 1))
       (setq lines (nreverse lines)))))
 
-        
-    
+
+
 
 
 (provide 'loccur)
