@@ -48,3 +48,16 @@ Below is the list of interactive commands available for user:
 * `loccur-jump-beginning-of-line` variable specifies if move the cursor to the beginning of the matching line. Default `nil`
 * `loccur-highlight-matching-regexp` variable whenever `loccur` should highlight matching words. Default `t`.
 * `loccur-face` face to be used while highlighting. Default points to `isearch` face.
+
+### Tips and tricks
+To combine **Loccur** and **isearch** functionality (narrowing-search) one can use the following hooks:
+```lisp
+(add-hook 'isearch-update-post-hook
+          (lambda ()
+            (let ((loccur-mode nil))
+              (loccur (regexp-quote isearch-string)))))
+
+(add-hook 'isearch-mode-end-hook
+          (lambda ()
+            (loccur nil)))
+```
