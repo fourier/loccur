@@ -175,14 +175,16 @@ unhides lines again.
 
 When called interactively, either prompts the user for REGEXP or,
 when called with an active region, uses the content of the
-region."
+region, unless called with the universal prefix (C-u)"
   (interactive
    (cond ((region-active-p)
           (list (buffer-substring (mark) (point))))
          (loccur-mode
           (list nil))
          (t
-          (list (read-string "Loccur: " (loccur-prompt) 'loccur-history)))))
+          (list (read-string "Loccur: "
+                               (loccur-prompt)
+                             'loccur-history)))))
   (when (region-active-p) (deactivate-mark))
   (if (or loccur-mode
           (= (length regex) 0))
@@ -205,20 +207,24 @@ region."
   "Return the default value of the prompt.
 
 Default value for prompt is a current word or active region(selection),
-if its size is 1 line"
-  (let ((prompt
-         (if (and transient-mark-mode
-                  mark-active)
-             (let ((pos1 (region-beginning))
-                   (pos2 (region-end)))
-               ;; Check if the start and the end of an active region is on
-               ;; the same line
-               (when (save-excursion
-                       (goto-char pos1)
-                       (<= pos2 (line-end-position)))
+if its size is 1 line.
+When the universal prefix is used, i.e. loccur called
+with C-u prefix, returns empty string"
+  (if current-prefix-arg
+      ""
+    (let ((prompt
+           (if (and transient-mark-mode
+                    mark-active)
+               (let ((pos1 (region-beginning))
+                     (pos2 (region-end)))
+                 ;; Check if the start and the end of an active region is on
+                 ;; the same line
+                 (when (save-excursion
+                         (goto-char pos1)
+                         (<= pos2 (line-end-position)))
                    (buffer-substring-no-properties pos1 pos2)))
-           (current-word))))
-    prompt))
+             (current-word))))
+      prompt)))
 
 
 (defun loccur-1 (regex)
