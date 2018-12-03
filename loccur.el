@@ -98,6 +98,9 @@ a new window."
   :lighter " loccur"
   (if loccur-mode
       (loccur-1 loccur-current-search)
+    ;; remove current search and turn off loccur mode
+    ;; to allow to call `loccur' multiple times
+    (setf loccur-current-search nil)
     (loccur-remove-overlays)
     (recenter)))
 
@@ -183,16 +186,12 @@ region, unless called with the universal prefix (C-u)"
           (list nil))
          (t
           (list (read-string "Loccur: "
-                               (loccur-prompt)
+                             (loccur-prompt)
                              'loccur-history)))))
   (when (region-active-p) (deactivate-mark))
   (if (or loccur-mode
           (= (length regex) 0))
-      (progn
-        ;; remove current search and turn off loccur mode
-        ;; to allow to call `loccur' multiple times
-        (setf loccur-current-search nil)
-        (loccur-mode 0))
+      (loccur-mode 0)
     ;; otherwise do as usual
     ;; if the regex argument is not equal to previous search
     (when (not (string-equal regex loccur-current-search))
