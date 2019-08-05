@@ -169,6 +169,7 @@ REGEX is regexp to search"
       (when (overlay-get ovl loccur-overlay-visible-property-name)
         (overlay-put ovl 'face (if loccur-highlight-matching-regexp 'loccur-face nil))))))
 
+;;;###autoload
 (defun loccur (regex)
   "Perform a simple grep in current buffer.
 
