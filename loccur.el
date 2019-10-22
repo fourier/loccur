@@ -1,6 +1,6 @@
 ;;; loccur.el --- Perform an occur-like folding in current buffer -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009-2016 Free Software Foundation, Inc
+;; Copyright (C) 2009-2019 Free Software Foundation, Inc
 ;;
 ;; Author: Alexey Veretennikov <alexey.veretennikov@gmail.com>
 ;;
@@ -30,13 +30,12 @@
 ;;
 ;; Add the following to your .emacs file:
 ;;
-;; (require 'loccur)
-;; ;; defines shortcut for loccur of the current word
-;; (define-key global-map [(control o)] 'loccur-current)
-;; ;; defines shortcut for the interactive loccur command
-;; (define-key global-map [(control meta o)] 'loccur)
-;; ;; defines shortcut for the loccur of the previously found word
-;; (define-key global-map [(control shift o)] 'loccur-previous-match)
+;;     ;; defines shortcut for loccur of the current word
+;;     (define-key global-map [(control o)] 'loccur-current)
+;;     ;; defines shortcut for the interactive loccur command
+;;     (define-key global-map [(control meta o)] 'loccur)
+;;     ;; defines shortcut for the loccur of the previously found word
+;;     (define-key global-map [(control shift o)] 'loccur-previous-match)
 ;;
 ;;; Issues:
 ;; Using with smooth-scrolling.el sometimes
@@ -90,7 +89,6 @@
     map)
   "Keymap for the variable `loccur-mode'.")
 
-;;;###autoload
 (define-minor-mode loccur-mode
   "Minor mode for navigating through the file.
 Hides all lines without matches like `occur' does, but without opening
@@ -139,6 +137,7 @@ Default: t"
 (defvar-local loccur-current-search nil
   "The expression to search in the current active mode.")
 
+;;;###autoload
 (defun loccur-current ()
   "Call `loccur' for the current word."
   (interactive)
@@ -169,6 +168,7 @@ REGEX is regexp to search"
       (when (overlay-get ovl loccur-overlay-visible-property-name)
         (overlay-put ovl 'face (if loccur-highlight-matching-regexp 'loccur-face nil))))))
 
+;;;###autoload
 (defun loccur (regex)
   "Perform a simple grep in current buffer.
 
