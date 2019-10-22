@@ -5,7 +5,7 @@
 ;; Author: Alexey Veretennikov <alexey.veretennikov@gmail.com>
 ;;
 ;; Created: 2009-09-08
-;; Version: 1.2.3
+;; Version: 1.2.4
 ;; Package-Requires: ((emacs "24.3"))
 ;; Keywords: matching
 ;; URL: https://github.com/fourier/loccur
@@ -44,6 +44,24 @@
 ;;; TODO:
 ;;
 ;;; Change Log:
+;;
+;; 2019-10-22 (1.2.4)
+;;    + Added fix for the issue when the actions to perform
+;;      then the loccur-mode was disactivated were incomplete.
+;;    + Then loccur or loccur-no-highlight are called with universal prefix,
+;;      i.e. with C-u before the command, the currently selected value is
+;;      ignored.
+;;      Then people want this behavior by default, it is better wrap the call
+;;      to loccur with universal prefix, i.e. by implementing a helper
+;;      function like this:
+;;
+;;      (defun loccur-no-selection ()
+;;        (interactive)
+;;          (let ((current-prefix-arg 1))
+;;              (call-interactively
+;;                   'loccur)))
+;;
+;;      And then just call this function instead of loccur.
 ;;
 ;; 2016-12-26 (1.2.3)
 ;;    + Removed empty line in the beginning of the buffer.
