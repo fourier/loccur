@@ -1,4 +1,7 @@
 # Loccur
+
+[![MELPA](https://melpa.org/packages/loccur-badge.svg)](https://melpa.org/#/loccur)
+
 ## Introduction
 **Loccur** is an amazing tool to quickly navigate in a file. It is a minor mode for Emacs acting like **occur** but w/o creating a new window. It just hides all the text excepting lines containing matches.
 ## Installation
