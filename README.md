@@ -64,3 +64,21 @@ To combine **Loccur** and **isearch** functionality (narrowing-search) one can u
           (lambda ()
             (loccur nil)))
 ```
+
+
+## Contributions
+You can contribute to **loccur** in one of the following ways.
+- Submit a bug report
+- Submit a feature request
+- Submit a simple pull request (with changes < 15 lines)
+
+### Copyright issues
+Since **loccur** is a part of [GNU ELPA](https://elpa.gnu.org/), it is copyrighted by the [Free Software Foundation, Inc.](http://www.fsf.org/). Therefore in order to submit nontrivial changes (with total amount of lines > 15), one needs to to grant the right to include your works in GNU Emacs to the FSF.
+
+For this you need to complete [this](https://raw.githubusercontent.com/fourier/loccur/contributions/request-assign.txt) form, and send it to [assign@gnu.org](mailto:assign@gnu.org). The FSF will send you the assignment contract that both you and the FSF will sign.
+
+For more information one can read [here](http://www.gnu.org/licenses/why-assign.html) to understand why it is needed.
+
+As soon as the paperwork is done one can contribute to **loccur** with bigger pull requests.
+Note what pull requests without paperwork done will not be accepted, so please notify the [maintainer](mailto:alexey.veretennikov@gmail.com) if everything is in place.
+
