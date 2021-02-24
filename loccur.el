@@ -352,7 +352,7 @@ containing match"
         (forward-line 1))
       (setq lines (nreverse lines)))))
 
-(defun loccur-isearch--update ()
+(defun loccur-isearch-update ()
   "Apply `loccur' according the current Isearch state."
   (let ((loccur-mode nil)
         (loccur-highlight-matching-regexp nil)
@@ -368,10 +368,10 @@ containing match"
 	     (isearch-regexp isearch-string)
 	     (t (regexp-quote isearch-string))))))
 
-(defun loccur-isearch--exit ()
+(defun loccur-isearch-exit ()
   "Deactivate `loccur-isearch'."
-  (remove-hook 'isearch-update-post-hook 'loccur-isearch--update)
-  (remove-hook 'isearch-mode-end-hook 'loccur-isearch--exit)
+  (remove-hook 'isearch-update-post-hook 'loccur-isearch-update)
+  (remove-hook 'isearch-mode-end-hook 'loccur-isearch-exit)
   (loccur nil))
 
 ;;;###autoload
@@ -388,10 +388,10 @@ default value is used."
   (interactive (list search-default-mode))
   (unless isearch-mode
     (isearch-mode t (eq t mode) nil nil (and (functionp mode) mode)))
-  (if (memq 'loccur-isearch--update isearch-update-post-hook)
-      (loccur-isearch--exit)
-    (add-hook 'isearch-update-post-hook 'loccur-isearch--update)
-    (add-hook 'isearch-mode-end-hook 'loccur-isearch--exit)
+  (if (memq 'loccur-isearch-update isearch-update-post-hook)
+      (loccur-isearch-exit)
+    (add-hook 'isearch-update-post-hook 'loccur-isearch-update)
+    (add-hook 'isearch-mode-end-hook 'loccur-isearch-exit)
     (isearch-update))
   (funcall (or isearch-message-function #'isearch-message)))
 
