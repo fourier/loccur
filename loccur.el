@@ -5,7 +5,7 @@
 ;; Author: Alexey Veretennikov <alexey.veretennikov@gmail.com>
 ;;
 ;; Created: 2009-09-08
-;; Version: 1.2.4
+;; Version: 1.2.5
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: matching
 ;; URL: https://github.com/fourier/loccur
@@ -62,6 +62,8 @@
 ;;                   'loccur)))
 ;;
 ;;      And then just call this function instead of loccur.
+;; 2021-02-24 (1.2.5)
+;;    + Added loccur-isearch function
 ;;
 ;; 2016-12-26 (1.2.3)
 ;;    + Removed empty line in the beginning of the buffer.
