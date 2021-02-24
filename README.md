@@ -46,23 +46,22 @@ Below is the list of interactive commands available for user:
 * `loccur-previous-match` repeat previous `loccur` command
 * `loccur-no-highlight` is the same as `loccur` but not highlighting matches
 * `loccur-toggle-highlight` toggles highlighting of matches
+* `loccur-isearch`: incremental occur (more details below)
 
 ### Customization
 * `loccur-jump-beginning-of-line` variable specifies if move the cursor to the beginning of the matching line. Default `nil`
 * `loccur-highlight-matching-regexp` variable whenever `loccur` should highlight matching words. Default `t`.
 * `loccur-face` face to be used while highlighting. Default points to `isearch` face.
 
-### Tips and tricks
-To combine **Loccur** and **isearch** functionality (narrowing-search) one can use the following hooks:
-```lisp
-(add-hook 'isearch-update-post-hook
-          (lambda ()
-            (let ((loccur-mode nil))
-              (loccur (regexp-quote isearch-string)))))
+### Isearch integration
+The `loccur-isearch` command filters buffer lines incrementally as you
+type a search string.  It can also be called when Isearch is already
+active to turn filtering on or off.  For the latter functionality, you
+should bind the command in `isearch-mode-map`, for example as follows:
 
-(add-hook 'isearch-mode-end-hook
-          (lambda ()
-            (loccur nil)))
+``` elisp
+(define-key global-map (kbd "M-s C-o") 'loccur-isearch)
+(define-key isearch-mode-map (kbd "C-o") 'loccur-isearch)
 ```
 
 
